@@ -1,0 +1,21 @@
+{
+    "KPlugin": {
+        "Name": "Change Wallpaper",
+        "Description": "Wallpaper per virtual desktop",
+        "Icon": "preferences-system-windows",
+        
+        "Authors": [
+            {
+                "Email": "jf505@gmx.de",
+                "Name": "Jörg Fischer"
+            }
+        ],
+        "Id": "change-wallpaper",
+        "Version": "1.0",
+        "License": "MIT",
+        "Website": "https://github.com/jofisch5/change-wallpaper"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js",
+    "KPackageStructure": "KWin/Script"
+}
