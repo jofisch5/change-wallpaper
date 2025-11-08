@@ -7,30 +7,42 @@ const wallpapers = {
     4: {name: "Skylines", image: {light: "2560x1440.jpg", dark: "2560x1440.jpg"}},
     5: {name: "Bonsai", image: {light: "2560x1440.jpg", dark: "2560x1440.jpg"}}
 };
-
+const colors = {
+    6: {light: "#FF0000", dark: "#00FF00"}
+};
 const default_location = "/home/texter/Desktop";
 const locations = {
     5: "/home/texter/Documents/Programming/Plasma"
 };
 
-function buildImagePath(desktop_number, color) {
+function isItLight(colorScheme) {
+    return colorScheme.endsWith("Light");
+}
+
+function buildImagePath(desktop_number, colorScheme) {
     const wallpaper = (desktop_number in wallpapers) ? wallpapers[desktop_number] : default_wallpaper;
-    const isLight = color.endsWith("Light");
+    const isLight = isItLight(colorScheme);
     const image_name = isLight ? wallpaper.image.light : wallpaper.image.dark;
     const suffix = isLight ? "/" : "_dark/";
     return base_path + wallpaper.name + image_prefix + suffix + image_name;
 }
 
-function updateConfiguration(desktop_number, color) {
-    const image = buildImagePath(desktop_number, color);
+function getColor(desktop_number, colorScheme) {
+    return isItLight(colorScheme) ? colors[desktop_number].light : colors[desktop_number].dark;
+}
+
+function updateConfiguration(desktop_number, colorScheme) {
+    const isColor = (desktop_number in colors);
+    const wallpaperType = isColor ? "Color" : "Image";
+    const colorOrImage = isColor ? getColor(desktop_number, colorScheme) : buildImagePath(desktop_number, colorScheme);
     const location = (desktop_number in locations) ? locations[desktop_number] : default_location;
     configure = `
         var d = desktopForScreen(0);
         d.currentConfigGroup = ["General"];
         d.writeConfig("url", "${location}");
-        d.wallpaperPlugin = "org.kde.image";
-        d.currentConfigGroup = ["Wallpaper", "org.kde.image", "General"];
-        d.writeConfig("Image", "${image}");
+        d.wallpaperPlugin = "org.kde.${wallpaperType.toLowerCase()}";
+        d.currentConfigGroup = ["Wallpaper", "org.kde.${wallpaperType.toLowerCase()}", "General"];
+        d.writeConfig("${wallpaperType}", "${colorOrImage}");
     `;
     callDBus(
         "org.kde.plasmashell",
@@ -54,8 +66,8 @@ workspace.currentDesktopChanged.connect(function() {
         "org.kde.PlasmaShell",
         "evaluateScript",
         readColorScheme,
-        function (color) {
-            updateConfiguration(desktop_number, color);
+        function (colorScheme) {
+            updateConfiguration(desktop_number, colorScheme);
         }
     );
 });
